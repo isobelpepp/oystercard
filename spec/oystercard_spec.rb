@@ -2,6 +2,7 @@ require 'oystercard'
 
 describe Oystercard do
 
+
   it 'responds to in_use' do
     expect(subject).to respond_to(:in_use)
   end
@@ -24,13 +25,21 @@ describe Oystercard do
   end
 
   describe '#tap_in' do
+
+    let(:station) { double :station }
+
     it 'will tell you that your card is in use if you have tapped in' do
       subject.top_up(10)
-      subject.tap_in
+      subject.tap_in(station)
       expect(subject.in_use).to eq true
     end
     it 'raises error if card has less than £1' do
-      expect { subject.tap_in }.to raise_error "Balance is below £#{Oystercard::MIN}"
+      expect { subject.tap_in(station) }.to raise_error "Balance is below £#{Oystercard::MIN}"
+    end
+    it 'remembers the entry station after tapping in' do
+      subject.top_up(10)
+      subject.tap_in(station)
+      expect(subject.entry_station).to eq(station)
     end
   end
 
@@ -41,6 +50,10 @@ describe Oystercard do
     end
     it 'deducts minimum fare from balance when tapping out' do
       expect { subject.tap_out }.to change { subject.balance }.by(-Oystercard::MIN)
+    end
+    it 'sets entry station to nil' do
+      subject.tap_out
+      expect(subject.entry_station).to eq nil
     end
   end
 

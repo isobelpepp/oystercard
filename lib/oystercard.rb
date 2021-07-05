@@ -4,7 +4,7 @@ class Oystercard
   MIN = 1
 
   attr_accessor :balance
-  attr_reader :in_use
+  attr_reader :entry_station
 
   def initialize(balance = 0)
     @balance = balance
@@ -18,15 +18,19 @@ class Oystercard
 
   end
 
-  def tap_in
+  def tap_in(entry_station)
     raise "Balance is below £#{MIN}" if @balance < MIN
 
-    @in_use = true
+    @entry_station = entry_station
+  end
+
+  def in_use
+    @entry_station == nil ? false : true
   end
 
   def tap_out
     deduct
-    @in_use = false
+    @entry_station = nil
   end
 
   private 
