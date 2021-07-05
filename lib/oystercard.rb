@@ -18,18 +18,21 @@ class Oystercard
 
   end
 
-  def deduct(money)
-    @balance -= money
-  end
-
   def tap_in
     raise "Balance is below £#{MIN}" if @balance < MIN
-    
+
     @in_use = true
   end
 
   def tap_out
+    deduct
     @in_use = false
+  end
+
+  private 
+
+  def deduct(money=MIN)
+    @balance -= money
   end
 
 end

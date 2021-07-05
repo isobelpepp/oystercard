@@ -2,17 +2,6 @@ require 'oystercard'
 
 describe Oystercard do
 
-  it 'will tell you that your card is in use if you have tapped in' do
-    subject.top_up(10)
-    subject.tap_in
-    expect(subject.in_use).to eq true
-  end
-
-  it 'will tell you your card is not in use if you have tapped out' do
-    subject.tap_out
-    expect(subject.in_use).to eq false
-  end
-
   it 'responds to in_use' do
     expect(subject).to respond_to(:in_use)
   end
@@ -34,17 +23,25 @@ describe Oystercard do
     end
   end
 
-  describe '#deduct' do
-    it 'deducts money from the card' do
-      subject.top_up(20)
-      subject.deduct(5)
-      expect(subject.balance).to eq 15
-    end
-  end
-
   describe '#tap_in' do
+    it 'will tell you that your card is in use if you have tapped in' do
+      subject.top_up(10)
+      subject.tap_in
+      expect(subject.in_use).to eq true
+    end
     it 'raises error if card has less than £1' do
       expect { subject.tap_in }.to raise_error "Balance is below £#{Oystercard::MIN}"
     end
   end
+
+  describe '#tap_out' do
+    it 'will tell you your card is not in use if you have tapped out' do
+      subject.tap_out
+      expect(subject.in_use).to eq false
+    end
+    it 'deducts minimum fare from balance when tapping out' do
+      expect { subject.tap_out }.to change { subject.balance }.by(-Oystercard::MIN)
+    end
+  end
+
 end
