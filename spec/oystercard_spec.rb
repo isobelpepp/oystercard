@@ -2,6 +2,20 @@ require 'oystercard'
 
 describe Oystercard do
 
+  it 'will tell you that your card is in use if you have tapped in' do
+    subject.tap_in
+    expect(subject.in_use).to eq true
+  end
+
+  it 'will tell you your card is not in use if you have tapped out' do
+    subject.tap_out
+    expect(subject.in_use).to eq false
+  end
+
+  it 'responds to in_use' do
+    expect(subject).to respond_to(:in_use)
+  end
+
   describe '#initialize' do
     it 'has balance of 0 by default' do
       expect(subject.balance).to eq 0
