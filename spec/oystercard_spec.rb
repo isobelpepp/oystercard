@@ -2,6 +2,8 @@ require 'oystercard'
 
 describe Oystercard do
 
+  let(:station) { double :station }
+  let(:station_2) { double :station_2 }
 
   it 'responds to in_use' do
     expect(subject).to respond_to(:in_use)
@@ -26,8 +28,6 @@ describe Oystercard do
 
   describe '#tap_in' do
 
-    let(:station) { double :station }
-
     it 'will tell you that your card is in use if you have tapped in' do
       subject.top_up(10)
       subject.tap_in(station)
@@ -44,17 +44,29 @@ describe Oystercard do
   end
 
   describe '#tap_out' do
-    it 'will tell you your card is not in use if you have tapped out' do
-      subject.tap_out
-      expect(subject.in_use).to eq false
-    end
-    it 'deducts minimum fare from balance when tapping out' do
-      expect { subject.tap_out }.to change { subject.balance }.by(-Oystercard::MIN)
-    end
-    it 'sets entry station to nil' do
-      subject.tap_out
-      expect(subject.entry_station).to eq nil
-    end
-  end
 
+      it 'will tell you your card is not in use if you have tapped out' do
+        subject.tap_out(station)
+        expect(subject.in_use).to eq false
+      end
+      it 'deducts minimum fare from balance when tapping out' do
+        expect { subject.tap_out(station) }.to change { subject.balance }.by(-Oystercard::MIN)
+      end
+      it 'sets entry station to nil' do
+        subject.top_up(10)
+        subject.tap_in(station)
+        subject.tap_out(station_2)
+        expect(subject.entry_station).to eq nil
+      end
+      it 'begins with an empty array' do
+        expect(subject.journeys).to be_empty
+      end
+      it 'stores journeys' do
+        subject.top_up(10)
+        subject.tap_in(station)
+        subject.tap_out(station_2)
+        expect(subject.journeys).to include ( {entry_station: station, exit_station: station_2} )
+      end
+   
+  end
 end
