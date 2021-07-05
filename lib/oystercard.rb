@@ -1,6 +1,7 @@
 class Oystercard
 
   LIMIT = 90
+  MIN = 1
 
   attr_accessor :balance
   attr_reader :in_use
@@ -22,6 +23,8 @@ class Oystercard
   end
 
   def tap_in
+    raise "Balance is below £#{MIN}" if @balance < MIN
+    
     @in_use = true
   end
 
