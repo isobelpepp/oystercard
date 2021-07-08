@@ -2,13 +2,15 @@ require 'station'
 
 describe Station do
 
-  let(:station) { Station.new('Euston', 1) }
-
-  it 'knows its own name' do
-    expect(station.name).to eq('Euston')
+  it 'holds a list of stations and zones' do
+    expect(subject.station_list).to include({ station: 'Balham', zone: 2 })
   end
 
-  it 'knows its own zone' do
-    expect(station.zone).to eq 1
+  describe '#random_station' do
+    it 'returns a random station and zone' do
+      allow(subject).to receive(:pick_station) { {station: 'Paddington', zone: 1} }
+      expect(subject.pick_station).to eq({station: 'Paddington', zone: 1})
+    end
   end
+
 end
