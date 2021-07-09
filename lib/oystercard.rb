@@ -1,20 +1,16 @@
-require_relative 'journey'
 require_relative 'station'
+require_relative 'journey_log'
 
-class Oystercard
+class Oystercard 
+
+  attr_reader :balance, :journey_log, :entry_station
 
   LIMIT = 90
   MIN = 1
-
-  attr_accessor :balance
-  attr_reader :entry_station, :exit_station, :journeys, :current_journey
+  PENALTY_FARE = 6
 
   def initialize(balance = 0)
     @balance = balance
-    @journeys = []
-    @entry_station = nil
-    @exit_station = nil
-    @current_journey = nil
   end
 
   def top_up(num)
@@ -23,46 +19,37 @@ class Oystercard
     @balance += num
   end
 
-  def tap_in
-    raise "Balance is below £#{MIN}" if @balance < MIN
-
-    @entry_station = random_station
-
-    @current_journey = Journey.new(@entry_station[:station], @entry_station[:zone])
-  end
-
-  def in_use
-    !!entry_station
-  end
-
-  def tap_out
-    @exit_station = random_station
-    complete_journey
-    deduct
-    @entry_station = nil
-  end
-
   def random_station
     station = Station.new
     station.pick_station
   end
 
-  def complete_journey
-    if @current_journey
-      @current_journey
-    else
-      @current_journey = Journey.new
-    end
+  def tap_in
+    raise "Balance is below £#{MIN}" if @balance < MIN
 
-    @current_journey.finish(@exit_station[:station], @exit_station[:zone])
-
-    #@journeys << { entry_station: @entry_station[:station], exit_station: @exit_station[:station] }
+    @entry_station = random_station
+    new_journey_log
+    deduct if @journey_log.in_journey?
+    @journey_log.start(@entry_station[:station], @entry_station[:zone])
   end
 
-  private 
+  def tap_out
+    @exit_station = random_station
+    new_journey_log
+    @journey_log.finish(@exit_station[:station], @exit_station[:zone])
+    deduct
+    @journey_log.add_to_log
+    @entry_station = nil
+  end
 
-  def deduct(money=MIN)
-    @balance -= @current_journey.fare
+  # can tidy up method above??
+
+  def deduct
+    @balance -= @journey_log.fare
+  end
+
+  def new_journey_log
+    @journey_log = JourneyLog.new if @journey_log.nil?
   end
 
 end
